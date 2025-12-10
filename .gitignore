@@ -1,0 +1,4 @@
+Datasets/
+venv/ # Also exclude virtual environment
+__pycache__/
+*.pyc
