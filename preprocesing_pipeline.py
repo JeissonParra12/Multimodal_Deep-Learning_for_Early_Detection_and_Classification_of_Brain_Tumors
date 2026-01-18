@@ -10,8 +10,8 @@ import shutil
 
 class MultimodalBrainTumorPreprocessingPipeline:
     """
-    Comprehensive multimodal preprocessing pipeline for brain tumor MRI and CT images
-    Combines dataset reorganization, modality-specific preprocessing, and class balancing
+    Multimodal preprocessing pipeline for brain tumor MRI and CT images
+    Includes dataset reorganization, modality-specific preprocessing, and class balancing
     """
     
     def __init__(self, target_size=(224, 224), apply_balancing=True):
@@ -125,7 +125,6 @@ class MultimodalBrainTumorPreprocessingPipeline:
         
         # Process CT folders
         print("\n" + "="*50)
-        print("Processing CT folders...")
         
         # CT/kaggle/no_tumor
         ct_normal_path = os.path.join(base_dir, 'CT', 'kaggle', 'no_tumor')
@@ -230,7 +229,6 @@ class MultimodalBrainTumorPreprocessingPipeline:
         """Load image with error handling"""
         if isinstance(image_path, str):
             image_path = Path(image_path)
-        
         try:
             image = cv2.imread(str(image_path), cv2.IMREAD_GRAYSCALE)
             if image is None:
@@ -528,13 +526,13 @@ class MultimodalBrainTumorPreprocessingPipeline:
         
         # Count images by label
         label_counts = Counter(label for _, _, label in all_images)
-        print(f"📊 Original distribution: {dict(label_counts)}")
+        print(f" Original distribution: {dict(label_counts)}")
         
         normal_count = label_counts['normal']
         tumor_count = label_counts['tumor']
         
         if normal_count == 0:
-            print("⚠️ No normal images found for balancing")
+            print("No normal images found for balancing")
             return all_images
         
         # Strategy: Augment normal class to match tumor class
@@ -549,7 +547,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         # Augment normal class
         normal_images = [(path, mod, label) for path, mod, label in all_images if label == 'normal']
         
-        print(f"🔄 Augmenting normal class...")
+        print(f" Augmenting normal class...")
         for img_path, modality, label in tqdm(normal_images, desc="Augmenting normal images"):
             # Apply multiple augmentations to each normal image
             augmented_images = self.apply_data_augmentation(img_path, modality, label, 
@@ -562,7 +560,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         
         # Count balanced distribution
         balanced_counts = Counter(label for _, _, label in balanced_data)
-        print(f"📈 Balanced distribution: {dict(balanced_counts)}")
+        print(f" Balanced distribution: {dict(balanced_counts)}")
         
         return balanced_data
     
@@ -580,11 +578,11 @@ class MultimodalBrainTumorPreprocessingPipeline:
         5. Quality assessment
         """
         
-        print("🚀 STARTING COMPLETE MULTIMODAL PREPROCESSING PIPELINE")
+        print("STARTING COMPLETE MULTIMODAL PREPROCESSING PIPELINE")
         print("=" * 60)
         
         # Step 1: Dataset Reorganization
-        print("\n📁 PHASE 1: DATASET REORGANIZATION & STANDARDIZATION")
+        print("\n PHASE 1: DATASET REORGANIZATION & STANDARDIZATION")
         print("-" * 40)
         
         # First, examine current structure
@@ -594,7 +592,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         file_counts = self.organize_mri_ct_folders(input_base_dir)
         
         # Step 2: Collect and prepare images for preprocessing
-        print("\n📊 PHASE 2: IMAGE COLLECTION & PREPARATION")
+        print("\n PHASE 2: IMAGE COLLECTION & PREPARATION")
         print("-" * 40)
         
         # Create output directories for processed data
@@ -607,7 +605,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         valid_ext = [".png", ".jpg", ".jpeg", ".bmp", ".tif", ".tiff", ".dcm"]
         
         # Collect all reorganized images
-        print("🔍 Scanning for multimodal images...")
+        print("Scanning multimodal images...")
         all_images = []
         
         for modality in ["MRI", "CT"]:
@@ -621,16 +619,16 @@ class MultimodalBrainTumorPreprocessingPipeline:
                             if p.is_file() and p.suffix.lower() in valid_ext
                         ]
                         all_images.extend(images)
-                        print(f"📁 Found {len(images)} {modality} {label} images")
+                        print(f" Found {len(images)} {modality} {label} images")
         
-        print(f"✅ Total usable images after reorganization: {len(all_images)}")
+        print(f"Total usable images after reorganization: {len(all_images)}")
         
         if len(all_images) == 0:
-            print("❌ No images found after reorganization!")
+            print("No images found after reorganization!")
             return
         
         # Step 3: Class Balancing (if enabled)
-        print("\n⚖️ PHASE 3: CLASS BALANCING")
+        print("\n PHASE 3: CLASS BALANCING")
         print("-" * 40)
         
         if self.apply_balancing:
@@ -645,12 +643,12 @@ class MultimodalBrainTumorPreprocessingPipeline:
         # For synthetic images
         synthetic_data = [(path, mod, label) for path, mod, label in balanced_data if isinstance(path, str) and path.startswith("synthetic_")]
         
-        print(f"🧠 Real MRI images: {len(mri_data)}")
-        print(f"📊 Real CT images: {len(ct_data)}")
-        print(f"🎭 Synthetic images: {len(synthetic_data)}")
+        print(f" Real MRI images: {len(mri_data)}")
+        print(f" Real CT images: {len(ct_data)}")
+        print(f" Synthetic images: {len(synthetic_data)}")
         
         # Step 4: Dataset Splitting
-        print("\n📊 PHASE 4: DATASET SPLITTING (70%/15%/15%)")
+        print("\n PHASE 4: DATASET SPLITTING (70%/15%/15%)")
         print("-" * 40)
         
         splits = {}
@@ -673,14 +671,14 @@ class MultimodalBrainTumorPreprocessingPipeline:
                       f"Test={len(splits[modality_name]['test'])}")
         
         # Step 5: Modality-Specific Preprocessing
-        print("\n🎯 PHASE 5: MODALITY-SPECIFIC PREPROCESSING")
+        print("\n PHASE 5: MODALITY-SPECIFIC PREPROCESSING")
         print("-" * 40)
         
         for modality, modality_splits in splits.items():
-            print(f"\n🎯 Processing {modality} images...")
+            print(f"\n Processing {modality} images...")
             
             for split_name, split_data in modality_splits.items():
-                print(f"   📂 Processing {split_name} set ({len(split_data)} images)...")
+                print(f"   Processing {split_name} set ({len(split_data)} images)...")
                 
                 for img_path, label in tqdm(split_data, desc=f"Processing {modality} {split_name}"):
                     try:
@@ -698,11 +696,11 @@ class MultimodalBrainTumorPreprocessingPipeline:
                             cv2.imwrite(image_output_path, (processed[:,:,0] * 255).astype(np.uint8))
                             
                     except Exception as e:
-                        print(f"❌ Error processing {img_path}: {e}")
+                        print(f" Error processing {img_path}: {e}")
                         continue
         
         # Step 6: Generate Comprehensive Report
-        print("\n📊 PHASE 6: COMPREHENSIVE REPORT GENERATION")
+        print("\n PHASE 6: COMPREHENSIVE REPORT GENERATION")
         print("=" * 60)
         
         # Count final distribution
@@ -715,7 +713,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
                         count = len(list(split_path.glob("*.npy")))
                         final_counts[modality][label] += count
         
-        print("\n📈 FINAL DATASET DISTRIBUTION:")
+        print("\n FINAL DATASET DISTRIBUTION:")
         print("-" * 40)
         
         total_images = 0
@@ -729,10 +727,10 @@ class MultimodalBrainTumorPreprocessingPipeline:
             if counts['normal'] > 0:
                 print(f"  Tumor/Normal Ratio: {counts['tumor']/counts['normal']:.2f}:1")
         
-        print(f"\n📊 GRAND TOTAL IMAGES PROCESSED: {total_images}")
+        print(f"\n GRAND TOTAL IMAGES PROCESSED: {total_images}")
         
         # Quality Metrics Summary
-        print("\n📐 QUALITY METRICS SUMMARY:")
+        print("\n QUALITY METRICS SUMMARY:")
         print("-" * 40)
         if self.quality_metrics:
             psnr_values = [metrics['psnr'] for metrics in self.quality_metrics.values() if metrics['psnr'] != float('inf')]
@@ -745,8 +743,8 @@ class MultimodalBrainTumorPreprocessingPipeline:
                 print(f"Average SSIM: {np.mean(ssim_values):.4f}")
                 print(f"SSIM Range: {min(ssim_values):.4f} - {max(ssim_values):.4f}")
         
-        print(f"\n✅ COMPLETE PIPELINE EXECUTION FINISHED!")
-        print(f"📁 Processed datasets saved in: {output_base_dir}")
+        print(f"\n COMPLETE PIPELINE EXECUTION FINISHED!")
+        print(f" Processed datasets saved in: {output_base_dir}")
         
         return final_counts, self.quality_metrics
 
@@ -772,8 +770,8 @@ if __name__ == "__main__":
             input_base_dir=INPUT_BASE_DIR,
             output_base_dir=OUTPUT_BASE_DIR
         )
-        print("\n🎉 All preprocessing steps completed successfully!")
+        print("\n All preprocessing steps completed successfully!")
     except Exception as e:
-        print(f"\n❌ Pipeline execution failed with error: {e}")
+        print(f"\n Pipeline execution failed with error: {e}")
         import traceback
         traceback.print_exc()
