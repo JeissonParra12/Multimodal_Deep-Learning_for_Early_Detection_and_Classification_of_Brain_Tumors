@@ -522,7 +522,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         Apply strategic balancing to handle class imbalance
         Augments normal class to match tumor class distribution
         """
-        print("⚖️ Applying class balancing strategy...")
+        print("Applying class balancing")
         
         # Count images by label
         label_counts = Counter(label for _, _, label in all_images)
@@ -537,7 +537,7 @@ class MultimodalBrainTumorPreprocessingPipeline:
         
         # Strategy: Augment normal class to match tumor class
         augmentation_factor = tumor_count // normal_count
-        print(f"🔧 Augmentation factor for normal class: {augmentation_factor}")
+        print(f" Augmentation factor: {augmentation_factor}")
         
         balanced_data = []
         
@@ -755,8 +755,8 @@ class MultimodalBrainTumorPreprocessingPipeline:
 
 if __name__ == "__main__":
     # Configuration
-    INPUT_BASE_DIR = "/Users/jeissonparra/Library/CloudStorage/OneDrive-FloridaInternationalUniversity/Capstone/Multimodal_Deep Learning_for_Early_Detection_and_Classification_of_Brain_Tumors_Using_MRI_and_CT_Scans/Datasets/Original"
-    OUTPUT_BASE_DIR = "/Users/jeissonparra/Library/CloudStorage/OneDrive-FloridaInternationalUniversity/Capstone/Multimodal_Deep Learning_for_Early_Detection_and_Classification_of_Brain_Tumors_Using_MRI_and_CT_Scans/Datasets/Balanced_Multimodal"
+    INPUT_BASE_DIR = "/Users/jeissonparra/Documents/Master_s Degree Florida International University/Data Science & AI/Spring - 2026/Capstone/Datasets/Original"
+    OUTPUT_BASE_DIR = "/Users/jeissonparra/Documents/Master_s Degree Florida International University/Data Science & AI/Spring - 2026/Capstone/Datasets/Balanced_Multimodal"
     
     # Create pipeline instance
     pipeline = MultimodalBrainTumorPreprocessingPipeline(
