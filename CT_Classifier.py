@@ -140,12 +140,32 @@ def build_ct_correlation_model(input_shape):
 
     patch_features = layers.TimeDistributed(encoder)(patches_img)  # (batch, 64, 128)
 
-    # 3. Correlation matrix
+    # ==========================================
+    # 3. Correlation matrix (64x64)
+    # ==========================================
     correlation_matrix = CorrelationLayer(name="correlation_layer")(patch_features)  # (batch, 64, 64)
 
-    # 4. Classification head
-    flat_matrix = layers.Flatten()(correlation_matrix)  # 4096
-    x = layers.Dense(256, activation='relu')(flat_matrix)
+    # ==========================================
+    # 4. Guided features - correlation-weighted patch features (Strict Woźniak style)
+    # This lets the CLM 'tell' the network which patches are most important
+    # Shape: (batch, 64, 64) @ (batch, 64, 128) = (batch, 64, 128)
+    # ==========================================
+    guided_features = layers.Dot(axes=(2, 1), name="guided_features")([correlation_matrix, patch_features])
+
+    # ==========================================
+    # 5. Optional: Add residual connection (keep original features too)
+    # Concatenate original and guided features
+    # ==========================================
+    combined_features = layers.Concatenate(axis=-1, name="combined_features")([patch_features, guided_features])
+    # Shape: (batch, 64, 256)
+
+    # Global pooling to get fixed-size representation
+    pooled_features = layers.GlobalAveragePooling1D(name="global_pool")(combined_features)  # (batch, 256)
+
+    # ==========================================
+    # 6. Classification head
+    # ==========================================
+    x = layers.Dense(256, activation='relu')(pooled_features)
     x = layers.Dropout(0.5)(x)
     x = layers.Dense(32, activation='relu')(x)
     outputs = layers.Dense(CONFIG['NUM_CLASSES'], activation='softmax')(x)
@@ -327,7 +347,7 @@ def create_comparison_chart(mri_scores, ct_scores):
 
 def run_ct_classification():
     print("=" * 60)
-    print("CT CORRELATION LEARNING MODEL")
+    print("CT CORRELATION LEARNING MODEL (WITH GUIDED FEATURES)")
     print("=" * 60)
 
     # Check local path
