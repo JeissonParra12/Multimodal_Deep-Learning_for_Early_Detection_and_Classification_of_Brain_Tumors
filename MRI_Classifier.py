@@ -1070,8 +1070,23 @@ def run_two_stage_pipeline():
     print("📦 STAGE 1: Preparing Binary Classifier Data")
     print("="*70)
 
-    # ... (your generator creation code) ...
-
+    train_gen_stage1 = Stage1BinaryGenerator(
+        os.path.join(CONFIG['BASE_PATH'], 'train'),
+        batch_size=CONFIG['BATCH_SIZE'],
+        shuffle=True
+    )
+    
+    val_gen_stage1 = Stage1BinaryGenerator(
+        os.path.join(CONFIG['BASE_PATH'], 'val'),
+        batch_size=CONFIG['BATCH_SIZE'],
+        shuffle=False
+    )
+    
+    test_gen_stage1 = Stage1BinaryGenerator(
+        os.path.join(CONFIG['BASE_PATH'], 'test'),
+        batch_size=CONFIG['BATCH_SIZE'],
+        shuffle=False
+    )
     # Train Stage 1
     stage1_model, stage1_history = train_stage1(train_gen_stage1, val_gen_stage1)
 
@@ -1145,41 +1160,6 @@ def run_two_stage_pipeline():
     # Create data distribution chart
     create_data_distribution_chart(train_gen_stage1, val_gen_stage1, test_gen_stage1, train_gen_stage2)
     
-    # Train Stage 1
-    stage1_model, stage1_history = train_stage1(train_gen_stage1, val_gen_stage1)
-    
-    # Evaluate Stage 1
-    print("\n" + "="*70)
-    print("📊 Evaluating Stage 1 Classifier")
-    print("="*70)
-    
-    # Get predictions
-    y_pred_stage1 = []
-    y_true_stage1 = []
-    for i in range(len(test_gen_stage1)):
-        X_batch, y_batch = test_gen_stage1[i]
-        pred_batch = stage1_model.predict(X_batch, verbose=0)
-        y_pred_stage1.extend(np.argmax(pred_batch, axis=1))
-        y_true_stage1.extend(np.argmax(y_batch, axis=1))
-    
-    y_true_stage1 = np.array(y_true_stage1)
-    y_pred_stage1 = np.array(y_pred_stage1)
-    
-    # Create confusion matrix
-    acc, sens, spec = create_stage1_confusion_matrix(y_true_stage1, y_pred_stage1)
-    
-    stage1_metrics = {
-        'accuracy': acc,
-        'sensitivity': sens,
-        'specificity': spec,
-        'cm': confusion_matrix(y_true_stage1, y_pred_stage1),
-        'normal_count': sum(1 for l in train_gen_stage1.labels if l == 0) + 
-                        sum(1 for l in val_gen_stage1.labels if l == 0) + 
-                        sum(1 for l in test_gen_stage1.labels if l == 0),
-        'tumor_count': sum(1 for l in train_gen_stage1.labels if l == 1) + 
-                       sum(1 for l in val_gen_stage1.labels if l == 1) + 
-                       sum(1 for l in test_gen_stage1.labels if l == 1)
-    }
     
     # Train Stage 2 if data available
     stage2_exists = len(train_gen_stage2) > 0

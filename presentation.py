@@ -538,3 +538,100 @@ if __name__ == "__main__":
     print("✅ All visualizations generated successfully!")
     print("📁 Files saved in current directory")
     print("=" * 60)
+
+    def create_pipeline_flowchart():
+    """Create a beautiful flowchart of the two-stage pipeline"""
+    
+    fig, ax = plt.subplots(figsize=(14, 8))
+    fig.patch.set_facecolor(COLORS['background'])
+    ax.axis('off')
+    
+    # Define positions
+    y_levels = [0.8, 0.6, 0.4, 0.2]
+    x_center = 0.5
+    
+    # Draw boxes
+    from matplotlib.patches import FancyBboxPatch, Arrow, Circle
+    
+    # Input box
+    input_box = FancyBboxPatch((0.4, y_levels[0]), 0.2, 0.1, 
+                               boxstyle="round,pad=0.05",
+                               facecolor='white', edgecolor='black', linewidth=2)
+    ax.add_patch(input_box)
+    ax.text(x_center, y_levels[0]+0.05, '🧠 MRI Image', 
+            ha='center', fontsize=14, fontweight='bold')
+    
+    # Stage 1 box
+    stage1_box = FancyBboxPatch((0.35, y_levels[1]), 0.3, 0.12,
+                                boxstyle="round,pad=0.05",
+                                facecolor=COLORS['stage1'], alpha=0.3,
+                                edgecolor=COLORS['stage1'], linewidth=3)
+    ax.add_patch(stage1_box)
+    ax.text(x_center, y_levels[1]+0.05, 'STAGE 1', 
+            ha='center', fontsize=16, fontweight='bold', color=COLORS['stage1'])
+    ax.text(x_center, y_levels[1]-0.02, 'Binary Classifier\n(Normal vs Tumor)', 
+            ha='center', fontsize=12)
+    
+    # Arrow down
+    ax.annotate('', xy=(x_center, y_levels[0]-0.05), xytext=(x_center, y_levels[1]+0.07),
+                arrowprops=dict(arrowstyle='->', lw=2, color='gray'))
+    
+    # Decision point
+    ax.add_patch(Circle((x_center, y_levels[2]), 0.05, 
+                       facecolor='white', edgecolor='black', linewidth=2))
+    ax.text(x_center, y_levels[2], 'Tumor?', ha='center', fontsize=12, fontweight='bold')
+    
+    # Arrow to decision
+    ax.annotate('', xy=(x_center, y_levels[1]-0.07), xytext=(x_center, y_levels[2]+0.06),
+                arrowprops=dict(arrowstyle='->', lw=2, color='gray'))
+    
+    # Two paths
+    # Normal path
+    ax.annotate('', xy=(x_center-0.1, y_levels[2]), xytext=(0.2, y_levels[3]),
+                arrowprops=dict(arrowstyle='->', lw=2, color=COLORS['normal']))
+    normal_box = FancyBboxPatch((0.15, y_levels[3]-0.05), 0.1, 0.1,
+                                boxstyle="round,pad=0.05",
+                                facecolor=COLORS['normal'], alpha=0.3,
+                                edgecolor=COLORS['normal'], linewidth=2)
+    ax.add_patch(normal_box)
+    ax.text(0.2, y_levels[3], 'Normal', ha='center', fontsize=12, fontweight='bold')
+    
+    # Tumor path
+    ax.annotate('', xy=(x_center+0.1, y_levels[2]), xytext=(0.8, y_levels[3]),
+                arrowprops=dict(arrowstyle='->', lw=2, color=COLORS['tumor']))
+    
+    # Stage 2 box
+    stage2_box = FancyBboxPatch((0.7, y_levels[3]-0.07), 0.2, 0.14,
+                                boxstyle="round,pad=0.05",
+                                facecolor=COLORS['stage2'], alpha=0.3,
+                                edgecolor=COLORS['stage2'], linewidth=3)
+    ax.add_patch(stage2_box)
+    ax.text(0.8, y_levels[3]+0.02, 'STAGE 2', 
+            ha='center', fontsize=14, fontweight='bold', color=COLORS['stage2'])
+    ax.text(0.8, y_levels[3]-0.05, 'Tumor Type\nClassifier', ha='center', fontsize=10)
+    
+    # Three tumor types
+    y_types = y_levels[3] - 0.15
+    colors = [COLORS['meningioma'], COLORS['glioma'], COLORS['pituitary']]
+    for i, (name, color) in enumerate(zip(STAGE2_CLASS_NAMES, colors)):
+        x_pos = 0.7 + i*0.15
+        ax.add_patch(Circle((x_pos, y_types), 0.03, facecolor=color, edgecolor='black'))
+        ax.text(x_pos, y_types-0.05, name, ha='center', fontsize=9, fontweight='bold')
+    
+    # Title
+    ax.text(0.5, 0.95, 'Two-Stage MRI Classification Pipeline', 
+            ha='center', fontsize=20, fontweight='bold')
+    
+    # Unknown tumor note
+    ax.text(0.5, 0.1, '⚠️ Unknown tumor types stop at Stage 1', 
+            ha='center', fontsize=12, style='italic',
+            bbox=dict(boxstyle="round,pad=0.5", facecolor='yellow', alpha=0.3))
+    
+    plt.tight_layout()
+    plt.savefig(os.path.join(CONFIG['FIGURE_PATH'], 'pipeline_flowchart.png'), 
+                dpi=300, bbox_inches='tight', facecolor=COLORS['background'])
+    plt.savefig(os.path.join(CONFIG['FIGURE_PATH'], 'pipeline_flowchart.pdf'), 
+                bbox_inches='tight', facecolor=COLORS['background'])
+    plt.show()
+    
+    print("✅ Pipeline flowchart saved")
