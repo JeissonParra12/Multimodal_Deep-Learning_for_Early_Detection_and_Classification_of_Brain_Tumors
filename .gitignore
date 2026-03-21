@@ -2,3 +2,6 @@ Datasets/
 venv/ # Also exclude virtual environment
 __pycache__/
 *.pyc
+.venv_gui
+.vscode
+requirements.txt
