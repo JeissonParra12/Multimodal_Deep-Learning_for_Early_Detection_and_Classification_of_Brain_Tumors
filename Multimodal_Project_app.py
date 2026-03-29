@@ -505,11 +505,6 @@ def main():
     st.title("🧠 Brain Tumor Detection")
     st.markdown("""
     <span style="color: #475569; font-size: 1.1em;">
-    ...
-    </span>
-    """, unsafe_allow_html=True)
-    st.markdown("""
-    <span style="color: #475569; font-size: 1.1em;">
     Multimodal diagnostic tool for MRI and CT scans.
     </span>
     """, unsafe_allow_html=True)
