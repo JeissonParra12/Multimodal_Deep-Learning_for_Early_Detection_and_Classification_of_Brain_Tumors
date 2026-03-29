@@ -42,8 +42,9 @@ occlusion_weight=0.65
 STAGE2_MODEL_PATH = './Saved_models/MRI_stage2_multiclass_model.keras'
 STAGE2_CLASS_NAMES = ['Meningioma', 'Glioma', 'Pituitary']
 
+
 # ----------------------------------------------------------------------
-# Occlusion‑based Localization (robust for any model)
+# Occlusion‑based Localization and Grad-CAM Functions
 # ----------------------------------------------------------------------
 def generate_gradcam_heatmap(model, image_batch, class_index=None, layer_name=None):
     """
@@ -397,56 +398,67 @@ def apply_custom_css():
         /* General App Background */
         .stApp {
             background-color: #f0f4f8;
+            color: #0f172a;
         }
+
+        /* Force readable text in main app */
+        .stApp, .stApp p, .stApp span, .stApp label, .stApp div {
+            color: #0f172a;
+        }
+
         /* Headers */
-        h1, h2, h3, h4 {
-            color: #1e3a8a;
+        h1, h2, h3, h4, h5, h6 {
+            color: #1e3a8a !important;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        /* Custom Container for Results */
-        .result-box-normal {
-            background-color: #d1fae5;
-            border-left: 5px solid #10b981;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            color: #065f46;
+
+        /* Markdown text */
+        [data-testid="stMarkdownContainer"] p,
+        [data-testid="stMarkdownContainer"] span,
+        [data-testid="stMarkdownContainer"] li {
+            color: #0f172a !important;
         }
-        .result-box-tumor {
-            background-color: #fee2e2;
-            border-left: 5px solid #ef4444;
-            padding: 15px;
-            border-radius: 8px;
-            margin: 10px 0;
-            color: #991b1b;
-        }
-        /* Tabs Styling */
-        .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-        }
+
+        /* Tabs */
         .stTabs [data-baseweb="tab"] {
             background-color: #ffffff;
+            color: #0f172a !important;
             border-radius: 8px 8px 0px 0px;
             padding: 10px 20px;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
             font-weight: 600;
         }
+
         .stTabs [aria-selected="true"] {
             background-color: #e0f2fe !important;
             border-bottom: 3px solid #0284c7;
             color: #0369a1 !important;
         }
-        /* Sidebar Styling */
+
+        /* Sidebar */
         [data-testid="stSidebar"] {
             background-color: #ffffff;
             border-right: 1px solid #e2e8f0;
+            color: #0f172a !important;
         }
-        /* File Uploader override */
+
+        [data-testid="stSidebar"] * {
+            color: #0f172a !important;
+        }
+
+        /* Inputs and labels */
+        .stRadio label, .stSelectbox label, .stFileUploader label {
+            color: #0f172a !important;
+        }
+
+        /* File uploader */
         [data-testid="stFileUploadDropzone"] {
             border: 2px dashed #94a3b8;
             background-color: #f8fafc;
             border-radius: 10px;
+            color: #0f172a !important;
         }
+
         /* Sidebar Info Box */
         .sidebar-info-box {
             background-color: #f8fafc;
@@ -454,8 +466,31 @@ def apply_custom_css():
             border-radius: 8px;
             border: 1px solid #e2e8f0;
             font-size: 0.9em;
-            color: #334155;
+            color: #334155 !important;
             margin-bottom: 20px;
+        }
+
+        .sidebar-info-box * {
+            color: #334155 !important;
+        }
+
+        /* Custom result boxes */
+        .result-box-normal {
+            background-color: #d1fae5;
+            border-left: 5px solid #10b981;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            color: #065f46 !important;
+        }
+
+        .result-box-tumor {
+            background-color: #fee2e2;
+            border-left: 5px solid #ef4444;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            color: #991b1b !important;
         }
         </style>
     """, unsafe_allow_html=True)
@@ -470,7 +505,7 @@ def main():
     st.title("🧠 Brain Tumor Detection")
     st.markdown("""
     <span style="color: #475569; font-size: 1.1em;">
-    Multimodal diagnostic tool for MRI and CT scans.
+    ...
     </span>
     """, unsafe_allow_html=True)
 
