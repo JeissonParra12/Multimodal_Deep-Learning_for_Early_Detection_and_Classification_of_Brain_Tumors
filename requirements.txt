@@ -4,3 +4,7 @@ pandas
 pillow
 opencv-python-headless
 tensorflow==2.20.0
+tqdm
+scikit-learn
+matplotlib
+seaborn 
