@@ -493,10 +493,10 @@ def main():
         <div class="sidebar-info-box">
             <h4 style="margin-top: 0; color: #1e3a8a;">Capstone Project</h4>
             <strong>Multimodal Deep Learning for Early Detection and Classification of Brain Tumors Using MRI and CT Scans</strong><br><br>
-            👤 <strong>Author:</strong> Jeisson Farid Parra Prieto<br>
-            📚 <strong>Course:</strong> IDC 6940 Capstone in Data Science<br>
-            🎓 <strong>Mentor:</strong> Dr. Fahad Saeed<br>
-            👨‍🏫 <strong>Instructor:</strong> Dr. Ananda M. Mondal
+             <strong>Author:</strong> Jeisson Farid Parra Prieto<br>
+             <strong>Course:</strong> IDC 6940 Capstone in Data Science<br>
+             <strong>Mentor:</strong> Dr. Fahad Saeed<br>
+             <strong>Instructor:</strong> Dr. Ananda M. Mondal
         </div>
         """, unsafe_allow_html=True)
         # ---------------------------------------
