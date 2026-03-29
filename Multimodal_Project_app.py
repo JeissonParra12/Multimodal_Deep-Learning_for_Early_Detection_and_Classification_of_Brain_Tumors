@@ -508,7 +508,12 @@ def main():
     ...
     </span>
     """, unsafe_allow_html=True)
-
+    st.markdown("""
+    <span style="color: #475569; font-size: 1.1em;">
+    Multimodal diagnostic tool for MRI and CT scans.
+    </span>
+    """, unsafe_allow_html=True)
+    
     st.markdown("""
     <span style="color: #475569; font-size: 1.1em;">
     Upload imaging data to perform automated tumor classification, clinical subtyping, and automated lesion localization.
