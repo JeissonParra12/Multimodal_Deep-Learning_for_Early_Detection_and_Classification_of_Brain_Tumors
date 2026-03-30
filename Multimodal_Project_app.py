@@ -395,31 +395,26 @@ def show_fusion_performance():
 def apply_custom_css():
     st.markdown("""
         <style>
-        /* General App Background */
         .stApp {
             background-color: #f0f4f8;
             color: #0f172a;
         }
 
-        /* Force readable text in main app */
         .stApp, .stApp p, .stApp span, .stApp label, .stApp div {
             color: #0f172a;
         }
 
-        /* Headers */
         h1, h2, h3, h4, h5, h6 {
             color: #1e3a8a !important;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        /* Markdown text */
         [data-testid="stMarkdownContainer"] p,
         [data-testid="stMarkdownContainer"] span,
         [data-testid="stMarkdownContainer"] li {
             color: #0f172a !important;
         }
 
-        /* Tabs */
         .stTabs [data-baseweb="tab"] {
             background-color: #ffffff;
             color: #0f172a !important;
@@ -435,7 +430,6 @@ def apply_custom_css():
             color: #0369a1 !important;
         }
 
-        /* Sidebar */
         [data-testid="stSidebar"] {
             background-color: #ffffff;
             border-right: 1px solid #e2e8f0;
@@ -446,20 +440,53 @@ def apply_custom_css():
             color: #0f172a !important;
         }
 
-        /* Inputs and labels */
+        header[data-testid="stHeader"] {
+            background-color: #f8fafc !important;
+        }
+
+        button[kind="header"],
+        [data-testid="collapsedControl"] {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+            border-radius: 8px !important;
+        }
+
+        button[kind="header"] svg,
+        [data-testid="collapsedControl"] svg {
+            fill: #0f172a !important;
+            color: #0f172a !important;
+        }
+
         .stRadio label, .stSelectbox label, .stFileUploader label {
             color: #0f172a !important;
         }
 
-        /* File uploader */
         [data-testid="stFileUploadDropzone"] {
-            border: 2px dashed #94a3b8;
-            background-color: #f8fafc;
+            border: 2px dashed #94a3b8 !important;
+            background-color: #f8fafc !important;
             border-radius: 10px;
             color: #0f172a !important;
         }
 
-        /* Sidebar Info Box */
+        [data-testid="stFileUploadDropzone"] * {
+            color: #0f172a !important;
+        }
+
+        [data-testid="stFileUploadDropzoneInstructions"] {
+            color: #0f172a !important;
+        }
+
+        [data-testid="stFileUploader"] * {
+            color: #0f172a !important;
+        }
+
+        .stButton > button {
+            background-color: #ffffff !important;
+            color: #0f172a !important;
+            border: 1px solid #cbd5e1 !important;
+        }
+
         .sidebar-info-box {
             background-color: #f8fafc;
             padding: 15px;
@@ -474,7 +501,6 @@ def apply_custom_css():
             color: #334155 !important;
         }
 
-        /* Custom result boxes */
         .result-box-normal {
             background-color: #d1fae5;
             border-left: 5px solid #10b981;
@@ -491,6 +517,10 @@ def apply_custom_css():
             border-radius: 8px;
             margin: 10px 0;
             color: #991b1b !important;
+        }
+
+        [data-testid="stAlertContainer"] * {
+            color: #0f172a !important;
         }
         </style>
     """, unsafe_allow_html=True)
