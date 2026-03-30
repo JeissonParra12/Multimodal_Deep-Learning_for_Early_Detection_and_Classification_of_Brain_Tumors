@@ -271,7 +271,7 @@ def draw_tumor_circle(image, heatmap, min_radius=8, max_radius=45):
         radius = int(max(ww, hh) / 2)
         radius = max(min_radius, min(radius, max_radius))
 
-        cv2.circle(overlay, (cx, cy), radius, (0, 0, 255), thickness=3)
+        cv2.circle(overlay, (cx, cy), radius, (255, 0, 0), thickness=3)
 
     return overlay
 
