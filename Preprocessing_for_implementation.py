@@ -62,7 +62,7 @@ MODEL_PATHS = {
 }
 
 # Input shapes expected by each model
-MRI_MODEL_SHAPE = (128, 128, 4)
+MRI_MODEL_SHAPE = (224, 224, 4)
 CT_MODEL_SHAPE   = (224, 224, 4)
 
 CLASS_NAMES = ['Normal', 'Tumor']
@@ -177,7 +177,6 @@ def preprocess_single_image(image_path, modality, pipeline):
     """
     Use the pipeline to preprocess a single image.
     The pipeline returns a normalized (0‑1) multi‑scale image of shape (224,224,4).
-    For MRI we resize to (128,128,4) to match the model input.
     """
     proc = pipeline.modality_specific_preprocessing(
         image_path,
@@ -187,9 +186,7 @@ def preprocess_single_image(image_path, modality, pipeline):
         return None
 
     if modality == "MRI":
-        # Resize spatial dimensions to MRI model input (128x128)
         proc_resized = cv2.resize(proc, MRI_MODEL_SHAPE[:2])
-        # Ensure shape is exactly (128,128,4)
         proc_resized = proc_resized.reshape(*MRI_MODEL_SHAPE)
     else:  # CT – shape is already (224,224,4)
         proc_resized = proc
