@@ -19,7 +19,7 @@ from pathlib import Path
 from glob import glob
 from PIL import Image
 
-# Import your existing modules
+# Import existing modules
 from Preprocessing_for_prediction import MultimodalBrainTumorPreprocessingPipeline
 from Preprocessing_for_implementation import (
     load_mri_model,
@@ -547,7 +547,7 @@ def main():
     st.write("") # Spacer
 
     with st.sidebar:
-        # --- NEW: FIU Logo and Project Info ---
+        #  FIU Logo and Project Info
         try:
             st.image("Results/FIU.png", use_container_width=True)
         except Exception:

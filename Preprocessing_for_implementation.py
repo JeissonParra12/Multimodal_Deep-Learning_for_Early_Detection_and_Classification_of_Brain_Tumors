@@ -16,7 +16,7 @@ from glob import glob
 from pathlib import Path
 from tqdm import tqdm
 
-# Import your existing preprocessing class
+# Import existing preprocessing class
 from Preprocessing_for_prediction import MultimodalBrainTumorPreprocessingPipeline
 
 # ============================================================================
