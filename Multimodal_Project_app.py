@@ -640,6 +640,7 @@ def main():
                             if pred_class == 1:
                                 st.markdown(f"""
                                 <div class="result-box-tumor">
+                                    st.caption("Results are for research purposes only and not for medical diagnosis.")
                                     <strong>Primary Detection:</strong> Tumor Detected (Confidence: {prob:.2%})
                                 </div>
                                 """, unsafe_allow_html=True)
@@ -694,6 +695,7 @@ def main():
                                         col3.warning(f"Heatmap failed: {e}")
                                         col4.warning("Localization unavailable")
                             else:
+                                st.caption("Results are for research purposes only and not for medical diagnosis.")
                                 col3.info("No tumor detected")
                                 col4.info("No localization required")
                 finally:
@@ -726,12 +728,14 @@ def main():
                             if pred_class == 1:
                                 st.markdown(f"""
                                 <div class="result-box-tumor">
+                                    st.caption("Results are for research purposes only and not for medical diagnosis.")
                                     <strong>Primary Detection:</strong> Tumor Detected (Confidence: {prob:.2%})
                                 </div>
                                 """, unsafe_allow_html=True)
                             else:
                                 st.markdown(f"""
                                 <div class="result-box-normal">
+                                    st.caption("Results are for research purposes only and not for medical diagnosis.")
                                     <strong>Primary Detection:</strong> Normal Scan (Confidence: {(1-prob):.2%})
                                 </div>
                                 """, unsafe_allow_html=True)
@@ -793,12 +797,14 @@ def main():
                             if pred_class == 1:
                                 st.markdown(f"""
                                 <div class="result-box-tumor">
+                                    st.caption("Results are for research purposes only and not for medical diagnosis.")
                                     <strong>Multimodal Detection:</strong> Tumor Detected (Fusion Confidence: {prob:.2%})
                                 </div>
                                 """, unsafe_allow_html=True)
                             else:
                                 st.markdown(f"""
                                 <div class="result-box-normal">
+                                    st.caption("Results are for research purposes only and not for medical diagnosis.")
                                     <strong>Multimodal Detection:</strong> Normal Scans (Fusion Confidence: {(1-prob):.2%})
                                 </div>
                                 """, unsafe_allow_html=True)
