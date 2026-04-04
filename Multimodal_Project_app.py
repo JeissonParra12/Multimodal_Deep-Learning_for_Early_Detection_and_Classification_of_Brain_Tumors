@@ -42,7 +42,12 @@ occlusion_weight=0.65
 STAGE2_MODEL_PATH = './Saved_models/MRI_stage2_multiclass_model.keras'
 STAGE2_CLASS_NAMES = ['Meningioma', 'Glioma', 'Pituitary']
 
-
+st.warning(
+"""
+⚠️ Disclaimer: This tool is intended strictly for research and educational purposes and does not constitute a medical device. 
+Predictions are not for clinical diagnosis or treatment decisions and must be interpreted by qualified healthcare professionals.
+"""
+)
 # ----------------------------------------------------------------------
 # Occlusion‑based Localization and Grad-CAM Functions
 # ----------------------------------------------------------------------
