@@ -32,7 +32,6 @@ from Preprocessing_for_implementation import (
     MRI_MODEL_SHAPE,
     CT_MODEL_SHAPE,
     CLASS_NAMES,
-    CorrelationLayer,
     MODEL_PATHS,
     find_last_conv_layer,
 )
