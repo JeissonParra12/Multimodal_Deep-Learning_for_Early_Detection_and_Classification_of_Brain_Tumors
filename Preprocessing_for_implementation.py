@@ -163,18 +163,17 @@ def load_ct_model():
     return model
 
 def load_fusion_model():
-    # Define the dictionary of all custom components used in your models
     custom_objects = {
         'compute_patch_statistics': compute_patch_statistics,
         'CorrelationLayer': CorrelationLayer,
         'PatchExtractorLayer': PatchExtractorLayer
     }
-    
-    # Pass custom_objects to the load_model call
+
     model = tf.keras.models.load_model(
         MODEL_PATHS['fusion'],
         custom_objects=custom_objects,
-        compile=False # Good practice for inference to avoid optimizer errors
+        compile=False,
+        safe_mode=False
     )
     return model
 
