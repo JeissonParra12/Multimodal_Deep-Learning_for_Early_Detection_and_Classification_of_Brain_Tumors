@@ -1,0 +1,3 @@
+## ⚠️ Medical Disclaimer
+
+This tool is intended strictly for research and educational purposes and does not constitute a medical device. The predictions generated are not intended for clinical diagnosis or treatment decisions and must be interpreted only by qualified healthcare professionals. No patient-identifiable data is stored or processed. This system has not undergone regulatory approval (e.g., FDA clearance), and its use in clinical settings would require extensive validation and compliance with medical regulations.

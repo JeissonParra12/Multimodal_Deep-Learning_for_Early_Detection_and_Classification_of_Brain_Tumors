@@ -95,50 +95,72 @@ def load_mri_model():
     print("✓ MRI model loaded.")
     return model
 
-def build_ct_correlation_model(input_shape, patch_size=28, num_patches=64, num_classes=2):
-    """Reconstruct the CT correlation model architecture (required for loading weights)."""
+def compute_patch_statistics(patch_features):
+    patch_min = tf.reduce_min(patch_features, axis=-1, keepdims=True)
+    patch_max = tf.reduce_max(patch_features, axis=-1, keepdims=True)
+    patch_sum = tf.reduce_sum(patch_features, axis=-1, keepdims=True)
+    patch_mean = tf.reduce_mean(patch_features, axis=-1, keepdims=True)
+    patch_std = tf.math.reduce_std(patch_features, axis=-1, keepdims=True)
+    
+    sorted_f = tf.sort(patch_features, axis=-1)
+    n = tf.shape(patch_features)[-1]
+    patch_median = tf.reduce_mean(sorted_f[:, :, n//4: 3*n//4], axis=-1, keepdims=True)
+    
+    return tf.concat([patch_min, patch_max, patch_sum, patch_mean, patch_std, patch_median], axis=-1)
+
+def build_ct_model(input_shape=(224, 224, 4), patch_size=28, num_patches=64, num_classes=2):
     inputs = layers.Input(shape=input_shape, name="ct_input")
 
-    # Use the custom patch extractor layer
-    extract_patches = PatchExtractorLayer(patch_size=patch_size, name="patch_extractor")
-    patches = extract_patches(inputs)
+    # 1. Patch Extraction (Matching Training)
+    patches = layers.Lambda(lambda x: tf.image.extract_patches(
+        images=x, sizes=[1, patch_size, patch_size, 1],
+        strides=[1, patch_size, patch_size, 1], rates=[1, 1, 1, 1], padding='VALID'
+    ), name="patch_extractor")(inputs)
 
-    patches_reshaped = layers.Reshape((num_patches, -1), name="reshape_flat")(patches)
-    patches_img = layers.Reshape((num_patches, patch_size, patch_size, input_shape[-1]),
-                                  name="reshape_image")(patches_reshaped)
+    patches_img = layers.Reshape((num_patches, patch_size, patch_size, input_shape[-1]))(patches)
 
-    encoder = models.Sequential([
-        layers.Conv2D(32, (3, 3), activation='relu', padding='same',
-                      input_shape=(patch_size, patch_size, input_shape[-1]),
-                      name="enc_conv1"),
-        layers.MaxPooling2D((2, 2), name="enc_pool1"),
-        layers.Conv2D(64, (3, 3), activation='relu', padding='same', name="enc_conv2"),
-        layers.MaxPooling2D((2, 2), name="enc_pool2"),
-        layers.Flatten(name="enc_flatten"),
-        layers.Dense(128, activation='relu', name="enc_dense"),
-        layers.LayerNormalization(name="enc_layernorm")
-    ], name="shared_encoder")
+    # 2. Shared CNN Encoder
+    cnn_encoder = models.Sequential([
+        layers.AveragePooling2D((4, 4), padding='same', input_shape=(patch_size, patch_size, input_shape[-1])),
+        layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
+        layers.BatchNormalization(),
+        layers.Activation('relu'),
+        layers.AveragePooling2D((3, 3), strides=(1, 1), padding='same'),
+        layers.Conv2D(64, (3, 3), activation='relu', padding='same'),
+        layers.GlobalAveragePooling2D(),
+        layers.Dense(64, activation='relu'),
+        layers.LayerNormalization(),
+    ], name="shared_cnn_encoder")
 
-    patch_features = layers.TimeDistributed(encoder, name="time_distributed_encoder")(patches_img)
-    correlation_matrix = CorrelationLayer(name="correlation_layer")(patch_features)
-    guided_features = layers.Dot(axes=(2, 1), name="guided_features")([correlation_matrix, patch_features])
-    combined_features = layers.Concatenate(axis=-1, name="combined_features")([patch_features, guided_features])
-    pooled_features = layers.GlobalAveragePooling1D(name="global_pool")(combined_features)
-    x = layers.Dense(256, activation='relu', name="fc1")(pooled_features)
-    x = layers.Dropout(0.5, name="dropout1")(x)
-    x = layers.Dense(32, activation='relu', name="fc2")(x)
-    outputs = layers.Dense(num_classes, activation='softmax', name="output")(x)
+    patch_features = layers.TimeDistributed(cnn_encoder, name="td_cnn")(patches_img)
+    
+    # 3. Statistical Descriptors
+    # Note: Ensure compute_patch_statistics is defined in this file!
+    patch_stats = layers.Lambda(compute_patch_statistics, name="patch_statistics")(patch_features)
 
-    model = models.Model(inputs=inputs, outputs=outputs, name="CT_Correlation_Model")
-    return model
+    features_flat = layers.Flatten(name="features_flat")(patch_features)
+    stats_flat    = layers.Flatten(name="stats_flat")(patch_stats)
+    ann_input     = layers.Concatenate(name="ann_input")([features_flat, stats_flat])
+
+    # 4. ANN Classifier
+    x = layers.Dense(90, activation='sigmoid', name="ann_90")(ann_input)
+    x = layers.Dense(45, activation='sigmoid', name="ann_45")(x)
+    x = layers.Dense(10, activation='sigmoid', name="ann_10")(x)
+    x = layers.Dense(5,  activation='sigmoid', name="ann_5")(x)
+    x = layers.Dense(4,  activation='sigmoid', name="ann_4")(x)
+    outputs = layers.Dense(num_classes, activation='softmax', name="ann_output")(x)
+
+    return models.Model(inputs=inputs, outputs=outputs, name="CT_CLM_Model")
 
 def load_ct_model():
-    """Load the pre‑trained CT correlation model (architecture + weights)."""
-    if not os.path.exists(MODEL_PATHS['ct_correlation']):
-        raise FileNotFoundError(f"CT model not found at {MODEL_PATHS['ct_correlation']}")
-    model = build_ct_correlation_model(CT_MODEL_SHAPE, patch_size=28, num_patches=64, num_classes=2)
+    model = build_ct_model()
+    # If loading .keras files, you MUST pass custom_objects
+    custom_objects = {
+        'compute_patch_statistics': compute_patch_statistics,
+        'CorrelationLayer': CorrelationLayer,
+        'PatchExtractorLayer': PatchExtractorLayer
+    }
     model.load_weights(MODEL_PATHS['ct_correlation'])
-    print("✓ CT model loaded.")
     return model
 
 def load_fusion_model():
