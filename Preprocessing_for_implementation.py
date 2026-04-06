@@ -92,7 +92,6 @@ def load_mri_model():
     if not os.path.exists(MODEL_PATHS['mri_stage1']):
         raise FileNotFoundError(f"MRI model not found at {MODEL_PATHS['mri_stage1']}")
     model = tf.keras.models.load_model(MODEL_PATHS['mri_stage1'], safe_mode=False)
-    print("✓ MRI model loaded.")
     return model
 
 def compute_patch_statistics(patch_features):
@@ -164,20 +163,19 @@ def load_ct_model():
     return model
 
 def load_fusion_model():
-    """Load the pre‑trained multimodal fusion model with custom objects."""
-    if not os.path.exists(MODEL_PATHS['fusion']):
-        raise FileNotFoundError(f"Fusion model not found at {MODEL_PATHS['fusion']}")
-    # Provide all custom classes used in the saved model
+    # Define the dictionary of all custom components used in your models
     custom_objects = {
+        'compute_patch_statistics': compute_patch_statistics,
         'CorrelationLayer': CorrelationLayer,
-        'PatchExtractorLayer': PatchExtractorLayer,
+        'PatchExtractorLayer': PatchExtractorLayer
     }
+    
+    # Pass custom_objects to the load_model call
     model = tf.keras.models.load_model(
         MODEL_PATHS['fusion'],
         custom_objects=custom_objects,
-        safe_mode=False
+        compile=False # Good practice for inference to avoid optimizer errors
     )
-    print("✓ Fusion model loaded.")
     return model
 
 # ============================================================================
