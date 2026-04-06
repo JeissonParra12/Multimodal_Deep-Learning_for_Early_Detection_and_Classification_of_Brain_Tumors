@@ -29,7 +29,6 @@ class CorrelationLayer(tf.keras.layers.Layer):
     """Custom layer to compute correlation matrix of patch features."""
     def call(self, inputs):
         return tf.matmul(inputs, inputs, transpose_b=True)
-
 @register_keras_serializable()
 class PatchStatisticsLayer(tf.keras.layers.Layer):
     def call(self, patch_features):
@@ -50,6 +49,25 @@ class PatchStatisticsLayer(tf.keras.layers.Layer):
 
     def get_config(self):
         return super().get_config()
+@register_keras_serializable()
+class PatchExtractorLayer(tf.keras.layers.Layer):
+    def __init__(self, patch_size=28, **kwargs):
+        super().__init__(**kwargs)
+        self.patch_size = patch_size
+
+    def call(self, inputs):
+        return tf.image.extract_patches(
+            images=inputs,
+            sizes=[1, self.patch_size, self.patch_size, 1],
+            strides=[1, self.patch_size, self.patch_size, 1],
+            rates=[1, 1, 1, 1],
+            padding='VALID'
+        )
+
+    def get_config(self):
+        config = super().get_config()
+        config.update({"patch_size": self.patch_size})
+        return config
 # ============================================================================
 # CONFIGURATION 
 # ============================================================================
@@ -92,19 +110,6 @@ def load_mri_model():
     model = tf.keras.models.load_model(MODEL_PATHS['mri_stage1'], safe_mode=False)
     return model
 
-def compute_patch_statistics(patch_features):
-    patch_min = tf.reduce_min(patch_features, axis=-1, keepdims=True)
-    patch_max = tf.reduce_max(patch_features, axis=-1, keepdims=True)
-    patch_sum = tf.reduce_sum(patch_features, axis=-1, keepdims=True)
-    patch_mean = tf.reduce_mean(patch_features, axis=-1, keepdims=True)
-    patch_std = tf.math.reduce_std(patch_features, axis=-1, keepdims=True)
-    
-    sorted_f = tf.sort(patch_features, axis=-1)
-    n = tf.shape(patch_features)[-1]
-    patch_median = tf.reduce_mean(sorted_f[:, :, n//4: 3*n//4], axis=-1, keepdims=True)
-    
-    return tf.concat([patch_min, patch_max, patch_sum, patch_mean, patch_std, patch_median], axis=-1)
-
 def build_ct_model(input_shape=(224, 224, 4), patch_size=28, num_patches=64, num_classes=2):
     inputs = layers.Input(shape=input_shape, name="ct_input")
 
@@ -145,20 +150,14 @@ def build_ct_model(input_shape=(224, 224, 4), patch_size=28, num_patches=64, num
 
 def load_ct_model():
     model = build_ct_model()
-    # If loading .keras files, you MUST pass custom_objects
-    custom_objects = {
-        'compute_patch_statistics': compute_patch_statistics,
-        'CorrelationLayer': CorrelationLayer,
-        'PatchExtractorLayer': PatchExtractorLayer
-    }
     model.load_weights(MODEL_PATHS['ct_correlation'])
     return model
 
 def load_fusion_model():
     custom_objects = {
-        'compute_patch_statistics': compute_patch_statistics,
         'CorrelationLayer': CorrelationLayer,
-        'PatchExtractorLayer': PatchExtractorLayer
+        'PatchExtractorLayer': PatchExtractorLayer,
+        'PatchStatisticsLayer': PatchStatisticsLayer,
     }
 
     model = tf.keras.models.load_model(
