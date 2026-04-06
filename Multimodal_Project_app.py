@@ -326,7 +326,7 @@ def predict_mri_stage2(model, image_batch):
 
 
 # ----------------------------------------------------------------------
-# Performance Display Functions (using saved images)
+# Performance Display Functions 
 # ----------------------------------------------------------------------
 def show_mri_performance():
     """Display saved MRI performance figures."""

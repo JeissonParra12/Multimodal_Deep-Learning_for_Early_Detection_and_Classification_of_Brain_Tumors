@@ -53,7 +53,7 @@ class PatchExtractorLayer(tf.keras.layers.Layer):
         return config
 
 # ============================================================================
-# CONFIGURATION (adjust paths if needed)
+# CONFIGURATION 
 # ============================================================================
 MODEL_PATHS = {
     'mri_stage1': './Saved_models/MRI_stage1_binary_model.keras',
@@ -195,7 +195,7 @@ def preprocess_single_image(image_path, modality, pipeline):
     return np.expand_dims(proc_resized, axis=0).astype(np.float32)
 
 # ============================================================================
-# MAIN INTERACTIVE FUNCTION (optional CLI)
+# MAIN INTERACTIVE FUNCTION 
 # ============================================================================
 def main():
     print("=" * 60)
@@ -334,7 +334,7 @@ def main():
                 print(f"{name:30s} : {CLASS_NAMES[cls]:8s} (tumor prob: {prob:.4f})")
             return
 
-    # 5. Print Output Results (For Single Modality or Paired Fusions)
+    # 5. Print Output Results 
     if results:
         print("\n" + "=" * 60)
         print("PREDICTION RESULTS")
