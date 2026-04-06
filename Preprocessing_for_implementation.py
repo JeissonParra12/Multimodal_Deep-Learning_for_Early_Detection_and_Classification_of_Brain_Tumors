@@ -30,28 +30,26 @@ class CorrelationLayer(tf.keras.layers.Layer):
     def call(self, inputs):
         return tf.matmul(inputs, inputs, transpose_b=True)
 
-
 @register_keras_serializable()
-class PatchExtractorLayer(tf.keras.layers.Layer):
-    """Custom layer to extract patches using tf.image.extract_patches."""
-    def __init__(self, patch_size=28, **kwargs):
-        super().__init__(**kwargs)
-        self.patch_size = patch_size
+class PatchStatisticsLayer(tf.keras.layers.Layer):
+    def call(self, patch_features):
+        patch_min = tf.reduce_min(patch_features, axis=-1, keepdims=True)
+        patch_max = tf.reduce_max(patch_features, axis=-1, keepdims=True)
+        patch_sum = tf.reduce_sum(patch_features, axis=-1, keepdims=True)
+        patch_mean = tf.reduce_mean(patch_features, axis=-1, keepdims=True)
+        patch_std = tf.math.reduce_std(patch_features, axis=-1, keepdims=True)
 
-    def call(self, inputs):
-        return tf.image.extract_patches(
-            images=inputs,
-            sizes=[1, self.patch_size, self.patch_size, 1],
-            strides=[1, self.patch_size, self.patch_size, 1],
-            rates=[1, 1, 1, 1],
-            padding='VALID'
+        sorted_f = tf.sort(patch_features, axis=-1)
+        n = tf.shape(patch_features)[-1]
+        patch_median = tf.reduce_mean(sorted_f[:, :, n//4:3*n//4], axis=-1, keepdims=True)
+
+        return tf.concat(
+            [patch_min, patch_max, patch_sum, patch_mean, patch_std, patch_median],
+            axis=-1
         )
 
     def get_config(self):
-        config = super().get_config()
-        config.update({'patch_size': self.patch_size})
-        return config
-
+        return super().get_config()
 # ============================================================================
 # CONFIGURATION 
 # ============================================================================
@@ -110,15 +108,13 @@ def compute_patch_statistics(patch_features):
 def build_ct_model(input_shape=(224, 224, 4), patch_size=28, num_patches=64, num_classes=2):
     inputs = layers.Input(shape=input_shape, name="ct_input")
 
-    # 1. Patch Extraction (Matching Training)
-    patches = layers.Lambda(lambda x: tf.image.extract_patches(
-        images=x, sizes=[1, patch_size, patch_size, 1],
-        strides=[1, patch_size, patch_size, 1], rates=[1, 1, 1, 1], padding='VALID'
-    ), name="patch_extractor")(inputs)
+    patches = PatchExtractorLayer(
+        patch_size=patch_size,
+        name="patch_extractor"
+    )(inputs)
 
     patches_img = layers.Reshape((num_patches, patch_size, patch_size, input_shape[-1]))(patches)
 
-    # 2. Shared CNN Encoder
     cnn_encoder = models.Sequential([
         layers.AveragePooling2D((4, 4), padding='same', input_shape=(patch_size, patch_size, input_shape[-1])),
         layers.Conv2D(32, (3, 3), activation='relu', padding='same'),
@@ -132,21 +128,17 @@ def build_ct_model(input_shape=(224, 224, 4), patch_size=28, num_patches=64, num
     ], name="shared_cnn_encoder")
 
     patch_features = layers.TimeDistributed(cnn_encoder, name="td_cnn")(patches_img)
-    
-    # 3. Statistical Descriptors
-    # Note: Ensure compute_patch_statistics is defined in this file!
-    patch_stats = layers.Lambda(compute_patch_statistics, name="patch_statistics")(patch_features)
 
+    patch_stats = PatchStatisticsLayer(name="patch_statistics")(patch_features)
     features_flat = layers.Flatten(name="features_flat")(patch_features)
-    stats_flat    = layers.Flatten(name="stats_flat")(patch_stats)
-    ann_input     = layers.Concatenate(name="ann_input")([features_flat, stats_flat])
+    stats_flat = layers.Flatten(name="stats_flat")(patch_stats)
+    ann_input = layers.Concatenate(name="ann_input")([features_flat, stats_flat])
 
-    # 4. ANN Classifier
     x = layers.Dense(90, activation='sigmoid', name="ann_90")(ann_input)
     x = layers.Dense(45, activation='sigmoid', name="ann_45")(x)
     x = layers.Dense(10, activation='sigmoid', name="ann_10")(x)
-    x = layers.Dense(5,  activation='sigmoid', name="ann_5")(x)
-    x = layers.Dense(4,  activation='sigmoid', name="ann_4")(x)
+    x = layers.Dense(5, activation='sigmoid', name="ann_5")(x)
+    x = layers.Dense(4, activation='sigmoid', name="ann_4")(x)
     outputs = layers.Dense(num_classes, activation='softmax', name="ann_output")(x)
 
     return models.Model(inputs=inputs, outputs=outputs, name="CT_CLM_Model")
