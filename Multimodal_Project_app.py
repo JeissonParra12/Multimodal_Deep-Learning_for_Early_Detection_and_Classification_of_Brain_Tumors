@@ -48,7 +48,7 @@ Predictions are not for clinical diagnosis or treatment decisions and must be in
 """
 )
 # ----------------------------------------------------------------------
-# Occlusion‑based Localization and Grad-CAM Functions
+# Occlusion based Localization and Grad-CAM Functions
 # ----------------------------------------------------------------------
 def generate_gradcam_heatmap(model, image_batch, class_index=None, layer_name=None):
     """
@@ -195,7 +195,7 @@ def generate_hybrid_heatmap(model, image_batch, display_img, class_index,
                             gradcam_weight=0.35, occlusion_weight=0.65,
                             patch_size=20, stride=10):
     """
-    Hybrid explanation:
+    Hybrid:
     - Grad-CAM gives smooth global attention
     - Occlusion gives more faithful local importance
 
